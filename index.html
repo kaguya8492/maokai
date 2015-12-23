@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Speech Recognition</title>
+</head>
+<style>
+* {
+	margin: 0;
+	padding: 0;
+}
+body {
+	-webkit-font-smoothing: antialiased;
+}
+.container {
+	width: calc(100% - 30px);
+	margin: 0 auto;
+}
+#recognition-interim {
+	padding: 10px;
+	min-height: 100px;
+	border-bottom: solid 2px rgb(0, 0, 0);
+	background-color: rgb(255, 255, 230);
+}
+#recognition-history {
+	font-size: 1.2em;
+}
+#recognition-history p {
+	padding: 15px 0;
+}
+#recognition-history p:nth-child(even){
+	background-color: rgb(230, 230, 230);
+}
+#recognition-history p:last-child {
+	font-size: 2.5em;
+	font-weight: bold;
+}
+</style>
+<body>
+	<section>
+		<div id="recognition-interim"></div>
+	</section>
+	<section>
+		<div id="recognition-history"></div>
+	</section>
+</body>
+<script>
+var resultContainer = document.getElementById('recognition-history');
+var interimContainer = document.getElementById('recognition-interim');
+
+if (!('webkitSpeechRecognition' in window)) {
+  upgrade();
+} else {
+	var recognition = new webkitSpeechRecognition();
+	recognition.continuous = true;
+	recognition.interimResults = true;
+
+	recognition.onstart = function() {
+	}
+	recognition.onresult = function(event) {
+		var interim_transcript = '';
+		console.dir(event);
+
+		for(var i = event.resultIndex; i < event.results.length; ++i){
+			if (event.results[i].isFinal){
+				var el = document.createElement('p');
+				el.textContent = event.results[i][0].transcript;
+				resultContainer.appendChild(el);
+			}else{
+				interim_transcript += event.results[i][0].transcript;
+			}
+		}
+
+		interimContainer.textContent = interim_transcript;
+	}
+	recognition.onerror = function(event) {
+		console.dir(event);
+	}
+	recognition.onend = function() {
+		recognition.start();
+	}
+
+	recognition.lang = 'ja-JP';
+	recognition.start();
+}
+
+</script>
+</html>
